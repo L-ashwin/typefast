@@ -1,10 +1,10 @@
 var startTime;
 var sourceTextElement = document.getElementById("sourceText");
-const sourceText = sourceTextElement.textContent;
+var userInputElement = document.getElementById("userInput");
 
 var position = 0, newPosition = 0; // till position-1 is already checked & correct
 document.getElementById("userInput").addEventListener("keyup", function(event) {
-    var userInputElement = document.getElementById("userInput");
+    var sourceText = sourceTextElement.textContent;
     var userInputLength = userInputElement.value.length;
     position = newPosition;
     
@@ -34,8 +34,16 @@ document.getElementById("userInput").addEventListener("keyup", function(event) {
 });
 
 function refreshPage() {
-    console.log('reload')
-    location.reload();
+    userInputElement.value = '';
+    document.getElementById("clickButton").focus();
+    position = 0, newPosition = 0;
+    
+    fetch('/get_string', {method: 'POST'})
+        .then(response => response.text())
+        .then(data => {
+            sourceTextElement.innerHTML = data;
+        })
+        .catch(error => console.error('Error:', error));
 }
 
 function startTyping(){
