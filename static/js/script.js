@@ -1,9 +1,19 @@
-var startTime;
 var sourceTextElement = document.getElementById("sourceText");
 var userInputElement = document.getElementById("userInput");
-
+var startTime, newStrokeTime;
 var position = 0, newPosition = 0; // till position-1 is already checked & correct
+strokes = [], strokeTimes = []
+
+
 document.getElementById("userInput").addEventListener("keyup", function(event) {
+    var newStrokeTime = new Date();
+    strokes.push(event.code);
+    strokeTimes.push(newStrokeTime-startTime);
+
+    handleDisplay(newStrokeTime);
+});
+
+function handleDisplay(newStrokeTime) {
     var sourceText = sourceTextElement.textContent;
     var userInputLength = userInputElement.value.length;
     position = newPosition;
@@ -22,21 +32,36 @@ document.getElementById("userInput").addEventListener("keyup", function(event) {
     if ((userInputElement.value[userInputLength-1]==' ') && ( i == userInputLength)){
         newPosition = position+userInputLength;
         userInputElement.value = '';
-        updateSpeed(newPosition);
+        updateSpeed(newPosition, newStrokeTime);
     }
 
-    // end
+    // end of text -> shift focus to restart
     if (sourceText.length==position+i) {
-        updateSpeed(sourceText.length);
-        console.log('end!');
+        updateSpeed(sourceText.length, newStrokeTime);
+        userInputElement.disabled=true;
         document.getElementById("reStart").focus();
+        console.log(strokes, strokeTimes);
+
+        var jsonData = {
+            'inputString': sourceTextElement.textContent,
+            'strokes': strokes,
+            'strokeTimes': strokeTimes
+        };
+    
+        fetch('/save_data', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(jsonData)
+          })
+
     }
-});
+}
 
 function refreshPage() {
     userInputElement.value = '';
     document.getElementById("clickButton").focus();
-    position = 0, newPosition = 0;
     
     fetch('/get_string', {method: 'POST'})
         .then(response => response.text())
@@ -47,12 +72,17 @@ function refreshPage() {
 }
 
 function startTyping(){
-    document.getElementById("userInput").focus();
+    userInputElement.disabled=false;
+    
     startTime = new Date();
+    position = 0, newPosition = 0;
+    strokes = [], strokeTimes = []
+    
+    userInputElement.focus();
+    
 }
 
-function updateSpeed(nChars){
-    var endTime = new Date();
+function updateSpeed(nChars, endTime){
     var wpm = (nChars/5)/((endTime - startTime)/(1000*60));
     document.getElementById("wpm").textContent = Math.round(wpm) + ' WPS';
 }

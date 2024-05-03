@@ -1,5 +1,5 @@
-import random
-from flask import Flask, render_template
+import random, datetime, json
+from flask import Flask, render_template, request
 
 app=Flask(__name__)
 
@@ -16,6 +16,19 @@ def get_string():
         data =  file.read()
         data = data.split('***')
     return random.choice(data).strip().replace('‘', "'").replace('’', "'").replace('“', '"').replace('”', '"')
+
+@app.route('/save_data', methods=['POST'])
+def save_data():
+    data = request.get_json()
+
+    current_datetime = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    filename = f'session_data/typefase_{current_datetime}.json'
+
+    with open(filename, 'w') as file:
+        json.dump(data, file)
+    
+    return '0'
+
 
 if __name__ == '__main__':
     app.run(debug=False)
