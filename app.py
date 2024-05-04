@@ -14,7 +14,7 @@ def get_string():
     file_name = 'naval-tweets.md' # text file with tweets seperated by ***
     with open(file_name, 'r') as file:
         data =  file.read()
-        data = data.split('***')
+        data = data.split('***')[1:]
     return random.choice(data).strip().replace('‘', "'").replace('’', "'").replace('“', '"').replace('”', '"')
 
 @app.route('/save_data', methods=['POST'])
