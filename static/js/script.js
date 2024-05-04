@@ -2,13 +2,13 @@ var sourceTextElement = document.getElementById("sourceText");
 var userInputElement = document.getElementById("userInput");
 var startTime, newStrokeTime;
 var position = 0, newPosition = 0; // till position-1 is already checked & correct
-strokes = [], strokeTimes = []
+strokes = [], timeStamps = []
 
 
-document.getElementById("userInput").addEventListener("keyup", function(event) {
+document.getElementById("userInput").addEventListener("input", function(event) {
     var newStrokeTime = new Date();
-    strokes.push(event.key);
-    strokeTimes.push(newStrokeTime-startTime);
+    strokes.push(event.data);
+    timeStamps.push(newStrokeTime-startTime);
 
     handleDisplay(newStrokeTime);
 });
@@ -40,12 +40,12 @@ function handleDisplay(newStrokeTime) {
         updateSpeed(sourceText.length, newStrokeTime);
         userInputElement.disabled=true;
         document.getElementById("reStart").focus();
-        console.log(strokes, strokeTimes);
+        console.log(strokes, timeStamps);
 
         var jsonData = {
             'inputString': sourceTextElement.textContent,
             'strokes': strokes,
-            'strokeTimes': strokeTimes
+            'timeStamps': timeStamps
         };
     
         fetch('/save_data', {
@@ -76,7 +76,7 @@ function startTyping(){
     
     startTime = new Date();
     position = 0, newPosition = 0;
-    strokes = [], strokeTimes = []
+    strokes = [], timeStamps = []
     
     userInputElement.focus();
     
