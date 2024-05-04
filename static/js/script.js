@@ -7,7 +7,7 @@ strokes = [], strokeTimes = []
 
 document.getElementById("userInput").addEventListener("keyup", function(event) {
     var newStrokeTime = new Date();
-    strokes.push(event.code);
+    strokes.push(event.key);
     strokeTimes.push(newStrokeTime-startTime);
 
     handleDisplay(newStrokeTime);
