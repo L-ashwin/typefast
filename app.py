@@ -1,4 +1,4 @@
-import random, datetime, json
+import random, datetime, json, os
 from flask import Flask, render_template, request
 
 app=Flask(__name__)
@@ -31,4 +31,8 @@ def save_data():
 
 
 if __name__ == '__main__':
+    
+    if not os.path.exists('./session_data'):
+        os.mkdir('./session_data')
+    
     app.run(debug=False)
