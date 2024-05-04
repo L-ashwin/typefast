@@ -2,14 +2,13 @@ var sourceTextElement = document.getElementById("sourceText");
 var userInputElement = document.getElementById("userInput");
 var startTime, newStrokeTime;
 var position = 0, newPosition = 0; // till position-1 is already checked & correct
-strokes = [], timeStamps = []
+var strokes = [], strokeTimes = []
 
 
 document.getElementById("userInput").addEventListener("input", function(event) {
     var newStrokeTime = new Date();
     strokes.push(event.data);
-    timeStamps.push(newStrokeTime-startTime);
-
+    strokeTimes.push(newStrokeTime-startTime);
     handleDisplay(newStrokeTime);
 });
 
@@ -40,24 +39,42 @@ function handleDisplay(newStrokeTime) {
         updateSpeed(sourceText.length, newStrokeTime);
         userInputElement.disabled=true;
         document.getElementById("reStart").focus();
-        console.log(strokes, timeStamps);
-
-        var jsonData = {
-            'inputString': sourceTextElement.textContent,
-            'strokes': strokes,
-            'timeStamps': timeStamps
-        };
-    
-        fetch('/save_data', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(jsonData)
-          })
-
+        save_session_data();
     }
 }
+
+
+function save_session_data(){
+    inputString = sourceTextElement.textContent
+    
+    var outTimes = []; // time curresponding to correct char typed
+    var ptr = inputString.length - 1;
+    for (let i = strokes.length - 1; ((i >= 0) & (ptr >=0)); i--) {
+        const key = strokes[i];
+        const time = strokeTimes[i]
+        if (key == inputString[ptr]) {
+            console.log(key, inputString[ptr], ptr, time)
+            outTimes.push(time);
+            ptr--;
+        }
+    }; outTimes.reverse();
+
+    var jsonData = {
+        'inputString': inputString,
+        'outTimes':outTimes,
+        'strokes': strokes,
+        'strokeTimes': strokeTimes
+    };
+
+    fetch('/save_data', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(jsonData)
+      });
+}
+
 
 function refreshPage() {
     userInputElement.value = '';
@@ -76,7 +93,7 @@ function startTyping(){
     
     startTime = new Date();
     position = 0, newPosition = 0;
-    strokes = [], timeStamps = []
+    strokes = [], strokeTimes = []
     
     userInputElement.focus();
     
