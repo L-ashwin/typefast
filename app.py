@@ -11,7 +11,7 @@ def index():
 
 @app.route('/get_string', methods=['POST'])
 def get_string():
-    file_name = 'naval-tweets.md' # text file with tweets seperated by ***
+    file_name = 'assets/naval-tweets.md' # text file with tweets seperated by ***
     with open(file_name, 'r') as file:
         data =  file.read()
         data = data.split('***')[1:]
