@@ -47,3 +47,11 @@ textarea {
     text-decoration: none;
     font-size: 16px;
 }
+
+hr {
+    margin: 50px;
+}
+
+img {
+    width: 80%;
+}

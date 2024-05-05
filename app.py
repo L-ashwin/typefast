@@ -1,6 +1,6 @@
 import pandas as pd
 import random, datetime, json, os
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_file
 
 app=Flask(__name__)
 
@@ -32,6 +32,13 @@ def save_data():
     df.to_csv("session_data/typing_speeds.csv", mode=mode, index=False, header=not isThere)
 
     return '0'
+
+@app.route('/get_image')
+def get_image():
+    # Generate the image
+    image_path = 'assets/MK101.jpg'
+    # Serve the image
+    return send_file(image_path, mimetype='image/jpg')
 
 
 if __name__ == '__main__':

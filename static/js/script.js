@@ -80,7 +80,8 @@ function save_session_data(){
 
 function getText() {
     document.getElementById("clickButton").focus();
-    fetchAndSetText()
+    fetchAndSetText();
+    putImgage();
 }
 
 function fetchAndSetText() {
@@ -105,3 +106,20 @@ function updateSpeed(nChars, endTime){
     var wpm = (nChars/5)/((endTime - startTime)/(1000*60));
     document.getElementById("wpm").textContent = Math.round(wpm) + ' WPS';
 }
+
+function putImgage() {
+    fetch('/get_image')
+        .then(response => response.blob())
+        .then(blob => {
+            const imageUrl = URL.createObjectURL(blob);
+            const imageElement = document.createElement('img');
+            imageElement.src = imageUrl;
+            document.getElementById('keyboard-image').appendChild(imageElement);
+        });
+}
+
+document.getElementById('hide-button').addEventListener('click', function() {
+    var image = document.getElementById('keyboard-image');
+    image.style.display = (image.style.display === 'none' || image.style.display === '') ? 'block' : 'none';
+    this.textContent = image.style.display === 'none' ? 'Show Keyboard' : 'Hide Keyboard';
+});
