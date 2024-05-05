@@ -1,7 +1,12 @@
 import pandas as pd
+from PIL import Image
+from io import BytesIO
+from collections import Counter
 import random, datetime, json, os
 from flask import Flask, render_template, request, send_file
+from utils.plotting import KeyHeatMap
 
+KEY_DIST = Counter()
 app=Flask(__name__)
 
 # Define a route to serve the index.html file
@@ -31,15 +36,24 @@ def save_data():
     isThere = os.path.exists("session_data/typing_speeds.csv"); mode = 'a' if isThere else 'w'
     df.to_csv("session_data/typing_speeds.csv", mode=mode, index=False, header=not isThere)
 
+    count = Counter(data['inputString'])
+    global KEY_DIST
+    KEY_DIST = KEY_DIST + count
     return '0'
 
 @app.route('/get_image')
 def get_image():
-    # Generate the image
-    image_path = 'assets/MK101.jpg'
-    # Serve the image
-    return send_file(image_path, mimetype='image/jpg')
+    if KEY_DIST:
+        khm = KeyHeatMap()
+        KEY_DIST.pop(' ', None)
+        image_array = khm.plot(KEY_DIST)
+        image_pil = Image.fromarray(image_array)
+    else: image_pil = Image.open('assets/MK101.jpg')
 
+    byte_stream = BytesIO()
+    image_pil.save(byte_stream, format='JPEG')
+    byte_stream.seek(0)
+    return send_file(byte_stream, mimetype='image/jpeg', as_attachment=True, download_name='image.jpg')
 
 if __name__ == '__main__':
     

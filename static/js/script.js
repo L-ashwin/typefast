@@ -3,7 +3,7 @@ var userInputElement = document.getElementById("userInput");
 var startTime, newStrokeTime;
 var position = 0, newPosition = 0; // till position-1 is already checked & correct
 var strokes = [], strokeTimes = []
-
+putImgage();
 
 document.getElementById("userInput").addEventListener("input", function(event) {
     var newStrokeTime = new Date();
@@ -75,13 +75,14 @@ function save_session_data(){
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(jsonData)
-      });
+      }).then(response => {
+        putImgage();
+    })
 }
 
 function getText() {
     document.getElementById("clickButton").focus();
     fetchAndSetText();
-    putImgage();
 }
 
 function fetchAndSetText() {
