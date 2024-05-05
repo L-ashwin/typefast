@@ -23,7 +23,7 @@ def save_data():
     data = request.get_json()
 
     current_datetime = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-    filename = f'session_data/typefase_{current_datetime}.json'
+    filename = f'session_data/raw/typefase_{current_datetime}.json'
     with open(filename, 'w') as file:
         json.dump(data, file)
     
@@ -36,7 +36,8 @@ def save_data():
 
 if __name__ == '__main__':
     
-    if not os.path.exists('./session_data'):
-        os.mkdir('./session_data')
+    session_output_path = './session_data/raw'
+    if not os.path.exists(session_output_path):
+        os.makedirs(session_output_path, exist_ok=True)
     
     app.run(debug=False)
