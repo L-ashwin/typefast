@@ -114,7 +114,8 @@ function putImgage() {
             const imageUrl = URL.createObjectURL(blob);
             const imageElement = document.createElement('img');
             imageElement.src = imageUrl;
-            document.getElementById('keyboard-image').appendChild(imageElement);
+            var div = document.getElementById('keyboard-image');
+            div.innerHTML=''; div.appendChild(imageElement);
         });
 }
 
