@@ -36,10 +36,14 @@ function handleDisplay(newStrokeTime) {
 
     // end of text -> shift focus to restart
     if (sourceText.length==position+i) {
-        updateSpeed(sourceText.length, newStrokeTime);
+        sourceTextElement.innerHTML = sourceText;
+        userInputElement.value = '';
         userInputElement.disabled=true;
-        document.getElementById("reStart").focus();
+        
+        updateSpeed(sourceText.length, newStrokeTime);
         save_session_data();
+        
+        document.getElementById("reStart").focus();
     }
 }
 
@@ -53,7 +57,6 @@ function save_session_data(){
         const key = strokes[i];
         const time = strokeTimes[i]
         if (key == inputString[ptr]) {
-            console.log(key, inputString[ptr], ptr, time)
             outTimes.push(time);
             ptr--;
         }
@@ -75,28 +78,27 @@ function save_session_data(){
       });
 }
 
-
-function refreshPage() {
-    userInputElement.value = '';
+function getText() {
     document.getElementById("clickButton").focus();
-    
+    fetchAndSetText()
+}
+
+function fetchAndSetText() {
     fetch('/get_string', {method: 'POST'})
-        .then(response => response.text())
-        .then(data => {
-            sourceTextElement.innerHTML = data;
-        })
-        .catch(error => console.error('Error:', error));
+    .then(response => response.text())
+    .then(data => {
+        sourceTextElement.innerHTML = data;
+    })
+    .catch(error => console.error('Error:', error));
 }
 
 function startTyping(){
     userInputElement.disabled=false;
-    
+    userInputElement.focus();
+
     startTime = new Date();
     position = 0, newPosition = 0;
     strokes = [], strokeTimes = []
-    
-    userInputElement.focus();
-    
 }
 
 function updateSpeed(nChars, endTime){
