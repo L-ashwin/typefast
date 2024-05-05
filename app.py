@@ -1,3 +1,4 @@
+import pandas as pd
 import random, datetime, json, os
 from flask import Flask, render_template, request
 
@@ -23,10 +24,13 @@ def save_data():
 
     current_datetime = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
     filename = f'session_data/typefase_{current_datetime}.json'
-
     with open(filename, 'w') as file:
         json.dump(data, file)
     
+    df = pd.DataFrame({"datetime": [current_datetime], "speed": [int(round(( len(data['inputString'])/5 ) / ( data['strokeTimes'][-1]/60000 )))]})
+    isThere = os.path.exists("session_data/typing_speeds.csv"); mode = 'a' if isThere else 'w'
+    df.to_csv("session_data/typing_speeds.csv", mode=mode, index=False, header=not isThere)
+
     return '0'
 
 
