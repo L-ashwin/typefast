@@ -21,7 +21,7 @@ def get_string():
 def save_data():
     data = request.get_json()
 
-    current_datetime = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    current_datetime = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
     filename = f'session_data/typefase_{current_datetime}.json'
 
     with open(filename, 'w') as file:
