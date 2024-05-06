@@ -13,10 +13,16 @@ class KeyHeatMap:
         return self.coordinates_dicts['lower'].get(key, self.coordinates_dicts['upper'].get(key))
     
     def plot(self, counts, alpha=.4):
-        k, v = counts.keys(), counts.values()
+        key_counts = {}
+        for k, v in counts.items():
+            key = tuple(self.get_coord(k))
+            key_counts[key] = key_counts.get(key, 0) + v
+
+
+        k, v = key_counts.keys(), key_counts.values()
         c = self.heatmapColors(np.array(list(v))) #colors
         s = self.markerSize(np.array(list(v))) # sizes
-        xy = [self.get_coord(each) for each in k] # co-ordinates
+        xy = list(k) # co-ordinates
 
         keyboard_image = cv2.imread(self.keyboard_image_path) # BGR
         heatmapImg = np.zeros_like(keyboard_image)
