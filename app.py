@@ -3,15 +3,18 @@ from PIL import Image
 from io import BytesIO
 from collections import Counter
 import random, datetime, json, os
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, session
 from utils.plotting import KeyHeatMap
 
-KEY_DIST = Counter()
+
 app=Flask(__name__)
+app.secret_key = 'your_secret_key_here'
 
 # Define a route to serve the index.html file
 @app.route('/')
 def index():
+    if not session['KEY_DIST']:
+        session['KEY_DIST'] = Counter()
     return render_template('index.html')
 
 
@@ -37,16 +40,16 @@ def save_data():
     df.to_csv("session_data/typing_speeds.csv", mode=mode, index=False, header=not isThere)
 
     count = Counter(data['inputString'])
-    global KEY_DIST
-    KEY_DIST = KEY_DIST + count
+    session['KEY_DIST'] = Counter(session['KEY_DIST']) + count
+    print(session['KEY_DIST'])
     return '0'
 
 @app.route('/get_image')
 def get_image():
-    if KEY_DIST:
+    if session['KEY_DIST']:
         khm = KeyHeatMap()
-        KEY_DIST.pop(' ', None)
-        image_array = khm.plot(KEY_DIST)
+        session['KEY_DIST'].pop(' ', None)
+        image_array = khm.plot(session['KEY_DIST'])
         image_pil = Image.fromarray(image_array)
     else: image_pil = Image.open('assets/MK101.jpg')
 
