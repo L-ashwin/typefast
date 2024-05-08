@@ -13,7 +13,7 @@ app.secret_key = 'your_secret_key_here'
 # Define a route to serve the index.html file
 @app.route('/')
 def index():
-    if not session['KEY_DIST']:
+    if 'KEY_DIST' not in session:
         session['KEY_DIST'] = Counter()
     return render_template('index.html')
 
