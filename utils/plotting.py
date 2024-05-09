@@ -6,20 +6,9 @@ import matplotlib.pyplot as plt
 class KeyHeatMap:
     def __init__(self):
         self.keyboard_image_path = './assets/MK101.jpg'
-        with open('./assets/coordinates.pkl', 'rb') as file:
-            self.coordinates_dicts = pickle.load(file)
     
-    def get_coord(self, key):
-        return self.coordinates_dicts['lower'].get(key, self.coordinates_dicts['upper'].get(key))
-    
-    def plot(self, counts, alpha=.4):
-        key_counts = {}
-        for k, v in counts.items():
-            key = tuple(self.get_coord(k))
-            key_counts[key] = key_counts.get(key, 0) + v
-
-
-        k, v = key_counts.keys(), key_counts.values()
+    def plot(self, key_dict, alpha=.4):
+        k, v = key_dict.keys(), key_dict.values()
         c = self.heatmapColors(np.array(list(v))) #colors
         s = self.markerSize(np.array(list(v))) # sizes
         xy = list(k) # co-ordinates
@@ -52,3 +41,11 @@ class KeyHeatMap:
     def markerSize(arr, minr=25, maxr=75):
         radii = (minr+(maxr-minr)*arr/max(arr)).astype(int)
         return radii
+
+
+class Mappings:
+    def __init__(self):
+        with open('./assets/coordinates.pkl', 'rb') as file:
+            self.coordinates_dicts = pickle.load(file)
+    def get_coord(self, key):
+        return self.coordinates_dicts['lower'].get(key, self.coordinates_dicts['upper'].get(key))

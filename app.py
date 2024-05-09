@@ -4,8 +4,7 @@ from io import BytesIO
 from collections import Counter
 import random, datetime, json, os
 from flask import Flask, render_template, request, send_file, session
-from utils.plotting import KeyHeatMap
-
+from utils.plotting import KeyHeatMap, Mappings
 
 app=Flask(__name__)
 app.secret_key = 'your_secret_key_here'
@@ -41,15 +40,19 @@ def save_data():
 
     count = Counter(data['inputString'])
     session['KEY_DIST'] = Counter(session['KEY_DIST']) + count
-    print(session['KEY_DIST'])
     return '0'
 
 @app.route('/get_image')
 def get_image():
     if session['KEY_DIST']:
+        map = Mappings()
+        session['KEY_DIST'].pop(' ', None); key_counts = {}
+        for k, v in session['KEY_DIST'].items():
+            key = tuple(map.get_coord(k))
+            key_counts[key] = key_counts.get(key, 0) + v
+
         khm = KeyHeatMap()
-        session['KEY_DIST'].pop(' ', None)
-        image_array = khm.plot(session['KEY_DIST'])
+        image_array = khm.plot(key_counts)
         image_pil = Image.fromarray(image_array)
     else: image_pil = Image.open('assets/MK101.jpg')
 
