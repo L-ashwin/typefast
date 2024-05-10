@@ -1,8 +1,9 @@
+import numpy as np
 import pandas as pd
 from PIL import Image
 from io import BytesIO
-from collections import Counter
 import random, datetime, json, os
+from collections import Counter, defaultdict
 from flask import Flask, render_template, request, send_file, session
 from utils.plotting import KeyHeatMap, Mappings
 
@@ -14,6 +15,8 @@ app.secret_key = 'your_secret_key_here'
 def index():
     if 'KEY_DIST' not in session:
         session['KEY_DIST'] = Counter()
+    if 'TIME_DATA' not in session:
+        session['TIME_DATA'] = {}
     return render_template('index.html')
 
 
@@ -38,23 +41,46 @@ def save_data():
     isThere = os.path.exists("session_data/typing_speeds.csv"); mode = 'a' if isThere else 'w'
     df.to_csv("session_data/typing_speeds.csv", mode=mode, index=False, header=not isThere)
 
+    # store count data
     count = Counter(data['inputString'])
     session['KEY_DIST'] = Counter(session['KEY_DIST']) + count
+
+   # get the average time for each key for the session
+    map = Mappings()
+    chars, times = [str(tuple(map.get_coord(each))) for each in data['inputString'][1:]], np.diff(data['outTimes'])
+    session_data = defaultdict(lambda: {'average_time': 0, 'count': 0})
+    for char, time in zip(chars, times):
+        session_data[char]['count'] += 1
+        session_data[char]['average_time'] += time
+    for char in session_data:
+        session_data[char]['average_time'] /= session_data[char]['count']
+
+    # update the overall average time
+    TIME_DATA = defaultdict(lambda: {'average_time': 0, 'count': 0}, session['TIME_DATA']); decay_factor=.1
+    for char, data in session_data.items():
+        TIME_DATA[char]['average_time'] = ((TIME_DATA[char]['average_time'] * TIME_DATA[char]['count']) + (data['average_time'] * data['count'])) / (TIME_DATA[char]['count'] + data['count'])
+        TIME_DATA[char]['count'] += data['count']
+    for char in TIME_DATA:
+        TIME_DATA[char]['count'] *= (1 - decay_factor)
+    session['TIME_DATA'] = TIME_DATA
+
     return '0'
 
 @app.route('/get_image')
 def get_image():
-    if session['KEY_DIST']:
+    kind = request.args.get('argument'); key_dict = {}
+    if (kind=='count') & (len(session['KEY_DIST'])>0):
         map = Mappings()
-        session['KEY_DIST'].pop(' ', None); key_counts = {}
         for k, v in session['KEY_DIST'].items():
             key = tuple(map.get_coord(k))
-            key_counts[key] = key_counts.get(key, 0) + v
+            key_dict[key] = key_dict.get(key, 0) + v
+    
+    elif (kind=='speed') & (len(session['TIME_DATA'])>0):
+        key_dict = {eval(k):1000/v['average_time'] for k,v in session['TIME_DATA'].items()}
 
-        khm = KeyHeatMap()
-        image_array = khm.plot(key_counts)
-        image_pil = Image.fromarray(image_array)
-    else: image_pil = Image.open('assets/MK101.jpg')
+    khm = KeyHeatMap()
+    image_array = khm.plot(key_dict)
+    image_pil = Image.fromarray(image_array)
 
     byte_stream = BytesIO()
     image_pil.save(byte_stream, format='JPEG')

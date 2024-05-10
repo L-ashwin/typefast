@@ -8,8 +8,11 @@ class KeyHeatMap:
         self.keyboard_image_path = './assets/MK101.jpg'
     
     def plot(self, key_dict, alpha=.4):
+        if len(key_dict)==0:
+            return cv2.imread(self.keyboard_image_path)
+        key_dict.pop((888,710), None) # skip the space bar
         k, v = key_dict.keys(), key_dict.values()
-        c = self.heatmapColors(np.array(list(v))) #colors
+        c = self.heatmapColors(np.array(list(v))) # colors
         s = self.markerSize(np.array(list(v))) # sizes
         xy = list(k) # co-ordinates
 

@@ -3,6 +3,7 @@ var userInputElement = document.getElementById("userInput");
 var startTime, newStrokeTime;
 var position = 0, newPosition = 0; // till position-1 is already checked & correct
 var strokes = [], strokeTimes = []
+var plot_kind = 'speed'
 putImgage();
 
 document.getElementById("userInput").addEventListener("input", function(event) {
@@ -109,7 +110,7 @@ function updateSpeed(nChars, endTime){
 }
 
 function putImgage() {
-    fetch('/get_image')
+    fetch('/get_image?argument='+plot_kind)
         .then(response => response.blob())
         .then(blob => {
             const imageUrl = URL.createObjectURL(blob);
@@ -120,8 +121,10 @@ function putImgage() {
         });
 }
 
-document.getElementById('hide-button').addEventListener('click', function() {
-    var image = document.getElementById('keyboard-image');
-    image.style.display = (image.style.display === 'none' || image.style.display === '') ? 'block' : 'none';
-    this.textContent = image.style.display === 'none' ? 'Show Keyboard' : 'Hide Keyboard';
+document.getElementById('kind-button').addEventListener('click', function() {
+    //var image = document.getElementById('keyboard-image');
+    //image.style.display = (image.style.display === 'none' || image.style.display === '') ? 'block' : 'none';
+    plot_kind = plot_kind === 'count' ? 'speed' : 'count';
+    this.textContent = plot_kind === 'count' ? 'Count' : 'Speed';
+    putImgage();
 });
