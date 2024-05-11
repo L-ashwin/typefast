@@ -1,7 +1,9 @@
 import cv2
 import pickle
 import numpy as np
+from io import BytesIO
 import matplotlib.pyplot as plt
+from scipy.stats import gaussian_kde
 
 class KeyHeatMap:
     def __init__(self):
@@ -52,3 +54,30 @@ class Mappings:
             self.coordinates_dicts = pickle.load(file)
     def get_coord(self, key):
         return self.coordinates_dicts['lower'].get(key, self.coordinates_dicts['upper'].get(key))
+    
+
+def plot_kde(data):
+    import matplotlib
+    matplotlib.use('agg')
+    kde = gaussian_kde(data)
+    x = np.linspace(min(data), max(data), 1000)
+    y = kde(x)
+
+    plt.figure(figsize=(12, 6))
+    plt.plot(x, y, color='blue', linewidth=1)
+    plt.fill_between(x, y, color='lightblue')
+
+    # Plot vertical line for latest value
+    plt.axvline(x=data[-1], color='red', linestyle='--', linewidth=2)
+    plt.box(False)
+
+    # Set ticks on x-axis
+    plt.tick_params(axis='both', which='major', labelsize=22)
+    plt.xticks([min(data), data[-1], max(data)])
+    plt.yticks([])
+
+    byte_stream = BytesIO()
+    plt.savefig(byte_stream, format='JPEG')
+    byte_stream.seek(0)
+    plt.close()
+    return byte_stream

@@ -7,6 +7,7 @@ var plot_kind = 'speed'
 putImgage();
 
 document.getElementById("userInput").addEventListener("input", function(event) {
+    console.log(event);
     var newStrokeTime = new Date();
     strokes.push(event.data);
     strokeTimes.push(newStrokeTime-startTime);
@@ -40,14 +41,14 @@ function handleDisplay(newStrokeTime) {
         sourceTextElement.innerHTML = sourceText;
         userInputElement.value = '';
         userInputElement.disabled=true;
-        
+        document.getElementById('main-container').setAttribute('hidden', true);
+        document.getElementById('kde-image').removeAttribute('hidden');
         updateSpeed(sourceText.length, newStrokeTime);
         save_session_data();
         
         document.getElementById("reStart").focus();
     }
 }
-
 
 function save_session_data(){
     inputString = sourceTextElement.textContent
@@ -84,6 +85,8 @@ function save_session_data(){
 function getText() {
     document.getElementById("clickButton").focus();
     fetchAndSetText();
+    document.getElementById('kde-image').setAttribute('hidden', true);
+    document.getElementById('main-container').removeAttribute('hidden');
 }
 
 function fetchAndSetText() {
@@ -117,6 +120,16 @@ function putImgage() {
             const imageElement = document.createElement('img');
             imageElement.src = imageUrl;
             var div = document.getElementById('keyboard-image');
+            div.innerHTML=''; div.appendChild(imageElement);
+        });
+
+    fetch('/get_kde')
+        .then(response => response.blob())
+        .then(blob => {
+            const imageUrl = URL.createObjectURL(blob);
+            const imageElement = document.createElement('img');
+            imageElement.src = imageUrl;
+            var div = document.getElementById('kde-image');
             div.innerHTML=''; div.appendChild(imageElement);
         });
 }

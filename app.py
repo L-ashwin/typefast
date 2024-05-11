@@ -5,7 +5,7 @@ from io import BytesIO
 import random, datetime, json, os
 from collections import Counter, defaultdict
 from flask import Flask, render_template, request, send_file, session
-from utils.plotting import KeyHeatMap, Mappings
+from utils.plotting import KeyHeatMap, Mappings, plot_kde
 
 app=Flask(__name__)
 app.secret_key = 'your_secret_key_here'
@@ -86,6 +86,12 @@ def get_image():
     image_pil.save(byte_stream, format='JPEG')
     byte_stream.seek(0)
     return send_file(byte_stream, mimetype='image/jpeg', as_attachment=True, download_name='image.jpg')
+
+@app.route('/get_kde')
+def get_kde():
+    df = pd.read_csv('session_data/typing_speeds.csv')
+    byte_stream = plot_kde(df['speed'].values)
+    return send_file(byte_stream, mimetype='image/jpeg', as_attachment=True, download_name='image.jpg') 
 
 if __name__ == '__main__':
     

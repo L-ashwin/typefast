@@ -5,9 +5,9 @@ body {
 }
 
 header{
-    height: 20vh;
+    height: 10vh;
     padding: 20px;
-    text-align: left;
+    text-align: center;
 }
 
 header p {
@@ -24,6 +24,10 @@ main{
     padding-left: 20px;
     background-color:aliceblue;
    
+}
+
+#kde-image img {
+    max-height: 25vh;
 }
 
 .text {
@@ -52,6 +56,6 @@ hr {
     margin: 50px;
 }
 
-img {
+.keyb img {
     width: 80%;
 }
