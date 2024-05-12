@@ -35,14 +35,18 @@ def save_data():
     data = request.get_json()
 
     current_datetime = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+    speed = int(round(( len(data['inputString'])/5 ) / ( data['strokeTimes'][-1]/60000 )))
+    
     filename = f'session_data/raw/typefase_{current_datetime}.json'
     with open(filename, 'w') as file:
         json.dump(data, file)
     
-    speed = int(round(( len(data['inputString'])/5 ) / ( data['strokeTimes'][-1]/60000 ))); session['SPEEDS'].append(speed)
     df = pd.DataFrame({"datetime": [current_datetime], "speed": [speed]})
     isThere = os.path.exists("session_data/typing_speeds.csv"); mode = 'a' if isThere else 'w'
     df.to_csv("session_data/typing_speeds.csv", mode=mode, index=False, header=not isThere)
+
+    # store typing speed for KDE
+    session['SPEEDS'].append(speed)
 
     # store count data
     count = Counter(data['inputString'])
@@ -82,12 +86,7 @@ def get_image():
         key_dict = {eval(k):1000/v['average_time'] for k,v in session['TIME_DATA'].items()}
 
     khm = KeyHeatMap()
-    image_array = khm.plot(key_dict)
-    image_pil = Image.fromarray(image_array)
-
-    byte_stream = BytesIO()
-    image_pil.save(byte_stream, format='JPEG')
-    byte_stream.seek(0)
+    byte_stream = khm.plot(key_dict)
     return send_file(byte_stream, mimetype='image/jpeg', as_attachment=True, download_name='image.jpg')
 
 @app.route('/get_kde')

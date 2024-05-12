@@ -1,6 +1,7 @@
 import cv2
 import pickle
 import numpy as np
+from PIL import Image
 from io import BytesIO
 import matplotlib.pyplot as plt
 from scipy.stats import gaussian_kde
@@ -32,7 +33,12 @@ class KeyHeatMap:
         result = cv2.addWeighted(keyboard_image, 1 - alpha, heatmapImg, alpha, 0)
         result[~mask] = keyboard_image[~mask]
         result = cv2.cvtColor(result, cv2.COLOR_BGR2RGB)
-        return result
+        image_pil = Image.fromarray(result)
+        
+        byte_stream = BytesIO()
+        image_pil.save(byte_stream, format='JPEG')
+        byte_stream.seek(0)
+        return byte_stream
     
     @staticmethod
     def heatmapColors(arr):
