@@ -81,3 +81,17 @@ def plot_kde(data):
     byte_stream.seek(0)
     plt.close()
     return byte_stream
+
+def plot_placeholder(text='Not enough data! \n keep practicing'):
+    import matplotlib
+    matplotlib.use('agg')
+    plt.figure(figsize=(12, 6))
+    plt.fill([-0.5, 0.5, 0.5, -0.5], [-0.5, -0.5, 0.5, 0.5], color='aliceblue')
+    plt.text(0, 0, text, ha='center', va='center', color='black', fontsize=42)
+    plt.axis('off')
+
+    byte_stream = BytesIO()
+    plt.savefig(byte_stream, format='JPEG')
+    byte_stream.seek(0)
+    plt.close()
+    return byte_stream

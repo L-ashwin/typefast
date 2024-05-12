@@ -5,7 +5,7 @@ from io import BytesIO
 import random, datetime, json, os
 from collections import Counter, defaultdict
 from flask import Flask, render_template, request, send_file, session
-from utils.plotting import KeyHeatMap, Mappings, plot_kde
+from utils.plotting import KeyHeatMap, Mappings, plot_kde, plot_placeholder
 
 app=Flask(__name__)
 app.secret_key = 'your_secret_key_here'
@@ -17,6 +17,8 @@ def index():
         session['KEY_DIST'] = Counter()
     if 'TIME_DATA' not in session:
         session['TIME_DATA'] = {}
+    if 'SPEEDS' not in session:
+        session['SPEEDS'] = []
     return render_template('index.html')
 
 
@@ -37,7 +39,8 @@ def save_data():
     with open(filename, 'w') as file:
         json.dump(data, file)
     
-    df = pd.DataFrame({"datetime": [current_datetime], "speed": [int(round(( len(data['inputString'])/5 ) / ( data['strokeTimes'][-1]/60000 )))]})
+    speed = int(round(( len(data['inputString'])/5 ) / ( data['strokeTimes'][-1]/60000 ))); session['SPEEDS'].append(speed)
+    df = pd.DataFrame({"datetime": [current_datetime], "speed": [speed]})
     isThere = os.path.exists("session_data/typing_speeds.csv"); mode = 'a' if isThere else 'w'
     df.to_csv("session_data/typing_speeds.csv", mode=mode, index=False, header=not isThere)
 
@@ -89,8 +92,10 @@ def get_image():
 
 @app.route('/get_kde')
 def get_kde():
-    df = pd.read_csv('session_data/typing_speeds.csv')
-    byte_stream = plot_kde(df['speed'].values)
+    if len(session['SPEEDS'])>2:
+        byte_stream = plot_kde(session['SPEEDS'])
+    else:
+        byte_stream = plot_placeholder()
     return send_file(byte_stream, mimetype='image/jpeg', as_attachment=True, download_name='image.jpg') 
 
 if __name__ == '__main__':
