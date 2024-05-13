@@ -6,13 +6,15 @@ from io import BytesIO
 import matplotlib.pyplot as plt
 from scipy.stats import gaussian_kde
 
+
+
 class KeyHeatMap:
     def __init__(self):
         self.keyboard_image_path = './assets/MK101.jpg'
     
     def plot(self, key_dict, alpha=.4):
         if len(key_dict)==0:
-            return cv2.imread(self.keyboard_image_path)
+            return self.img2bytes(cv2.imread(self.keyboard_image_path))
         key_dict.pop((888,710), None) # skip the space bar
         k, v = key_dict.keys(), key_dict.values()
         c = self.heatmapColors(np.array(list(v))) # colors
@@ -33,12 +35,7 @@ class KeyHeatMap:
         result = cv2.addWeighted(keyboard_image, 1 - alpha, heatmapImg, alpha, 0)
         result[~mask] = keyboard_image[~mask]
         result = cv2.cvtColor(result, cv2.COLOR_BGR2RGB)
-        image_pil = Image.fromarray(result)
-        
-        byte_stream = BytesIO()
-        image_pil.save(byte_stream, format='JPEG')
-        byte_stream.seek(0)
-        return byte_stream
+        return self.img2bytes(result)
     
     @staticmethod
     def heatmapColors(arr):
@@ -52,6 +49,13 @@ class KeyHeatMap:
     def markerSize(arr, minr=25, maxr=75):
         radii = (minr+(maxr-minr)*arr/max(arr)).astype(int)
         return radii
+    @staticmethod
+    def img2bytes(img):
+        image_pil = Image.fromarray(img)
+        byte_stream = BytesIO()
+        image_pil.save(byte_stream, format='JPEG')
+        byte_stream.seek(0)
+        return byte_stream
 
 
 class Mappings:
