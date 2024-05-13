@@ -97,6 +97,14 @@ def get_kde():
         byte_stream = plot_placeholder()
     return send_file(byte_stream, mimetype='image/jpeg', as_attachment=True, download_name='image.jpg') 
 
+@app.route('/clear_session')
+def clear_session():
+    session.clear()
+    session['KEY_DIST'] = Counter()
+    session['TIME_DATA'] = {}
+    session['SPEEDS'] = []
+    return '0'
+
 if __name__ == '__main__':
     
     session_output_path = './session_data/raw'

@@ -141,3 +141,10 @@ document.getElementById('kind-button').addEventListener('click', function() {
     this.textContent = plot_kind === 'count' ? 'Count' : 'Speed';
     putImgage();
 });
+
+document.getElementById('clear-button').addEventListener('click', function() {
+    const isConfirmed = window.confirm('Are you sure? This will clear the history.');
+    if (isConfirmed) {
+        fetch('/clear_session', { method: 'GET' }).then(putImgage)
+    }
+});
