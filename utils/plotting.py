@@ -74,8 +74,16 @@ def plot_kde(data):
     y = kde(x)
 
     plt.figure(figsize=(12, 6))
-    plt.plot(x, y, color='blue', linewidth=1)
+    plt.plot(x, y, color='lightblue', linewidth=1)
     plt.fill_between(x, y, color='lightblue')
+
+    if len(data)>25:
+        kde = gaussian_kde(data[-15:])
+        x = np.linspace(min(data), max(data), 1000)
+        y = kde(x)
+
+        plt.plot(x, y, color='pink', linewidth=1)
+        plt.fill_between(x, y, color='pink')
 
     # Plot vertical line for latest value
     plt.axvline(x=data[-1], color='red', linestyle='--', linewidth=2)
