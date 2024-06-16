@@ -3,6 +3,7 @@ var userInputElement = document.getElementById("userInput");
 var startTime, newStrokeTime;
 var position = 0, newPosition = 0; // till position-1 is already checked & correct
 var strokes = [], strokeTimes = []
+var incognito = false;
 var plot_kind = 'speed'
 putImgage();
 
@@ -44,7 +45,11 @@ function handleDisplay(newStrokeTime) {
         document.getElementById('main-container').setAttribute('hidden', true);
         document.getElementById('kde-image').removeAttribute('hidden');
         updateSpeed(sourceText.length, newStrokeTime);
-        save_session_data();
+        if (!incognito) {
+            save_session_data().then(() => {
+                putImgage();
+            })                
+        }
         
         document.getElementById("reStart").focus();
     }
@@ -71,15 +76,13 @@ function save_session_data(){
         'strokeTimes': strokeTimes
     };
 
-    fetch('/save_data', {
+    return fetch('/save_data', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(jsonData)
-      }).then(response => {
-        putImgage();
-    })
+      })
 }
 
 function getText() {
@@ -147,4 +150,8 @@ document.getElementById('clear-button').addEventListener('click', function() {
     if (isConfirmed) {
         fetch('/clear_session', { method: 'GET' }).then(putImgage)
     }
+});
+
+document.getElementById('toggleIncognito').addEventListener('change', function() {
+    incognito = this.checked;
 });
